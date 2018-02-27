@@ -1,0 +1,40 @@
+
+{
+    "settings":{
+        "number_of_shards":1,
+        "number_of_replicas":0
+    },
+    "mappings":{
+        "traffic":{
+            "properties":{
+                "@timestamp":{
+                    "type":"date"
+                },
+                "traffic.component":{
+                    "type":"text"
+                },
+                "traffic.bytes":{
+                    "type":"long"
+                },
+                "traffic.date":{
+                    "type":"text"
+                }   
+                
+            }
+        },
+        "heartbeat":{
+            "properties":{
+                "@timestamp":{
+                    "type":"date"
+                },
+                "traffic.interval":{
+                    "type":"long"
+                },
+                "traffic.time":{
+                    "type":"long"
+                }
+
+            }
+        }
+    }
+}

@@ -15,8 +15,6 @@ public class MonitorConfig {
     }
 
     public static MonitorConfig fromEnvironment() {
-
-
         String index = System.getenv("elasticPathURI");
         String ipinterval = System.getenv("IP-Interval");
         String elastic = System.getenv("elasticURI");
@@ -25,7 +23,7 @@ public class MonitorConfig {
         }
         SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
         if (index == null) {
-            index = "vdcmonitor";
+            index = "vdc";
         }
         index = String.format("%s-%s",index,formater.format(Calendar.getInstance().getTime()));
 

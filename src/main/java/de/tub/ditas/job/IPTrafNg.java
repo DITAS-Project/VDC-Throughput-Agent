@@ -71,7 +71,7 @@ public class IPTrafNg extends Job {
         String jTemp = "";
         for (PacketObject o : ob) {
             IPPacketObject temp = new IPPacketObject(o.getDate(), o.getBytes(), o.getSender(), o.getReceiver());
-            jTemp = jTemp + "{ \"create\" : { \"_index\" : \"" + config.indexName + "\", \"_type\" : \"" + temp.getComponent() + "\", \"_id\" : \"" + Integer.toHexString(Calendar.getInstance().hashCode()) + "\" } }\n";
+            jTemp = jTemp + "{ \"create\" : { \"_index\" : \"" + config.indexName + "\", \"_type\" : \"traffic\", \"_id\" : \"" + Integer.toHexString(Calendar.getInstance().hashCode()) + "\" } }\n";
             jTemp = jTemp + gs.toJson(temp) + "\n";
         }
         sendToElasticBulk(jTemp, "iptraf");
