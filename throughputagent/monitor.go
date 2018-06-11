@@ -56,6 +56,8 @@ func NewThroughputAgent() (*ThroughputAgent, error) {
 		ctx:              context.Background(),
 	}
 
+	log.Infof("traffic monitor running with es@%s name:%s waittime:%d", ta.ElasticSearchURL, ta.VDCName, ta.windowTime)
+
 	err := util.WaitForAvailible(ta.ElasticSearchURL, nil)
 
 	client, err := elastic.NewClient(
@@ -74,7 +76,7 @@ func NewThroughputAgent() (*ThroughputAgent, error) {
 
 func (ta *ThroughputAgent) Run() {
 
-	util.WaitForGreen(ta.elastic, nil)
+	//util.WaitForGreen(ta.elastic, nil)
 
 	go ta.pktstat()
 
@@ -83,7 +85,7 @@ func (ta *ThroughputAgent) Run() {
 		case out := <-ta.outChan:
 			ts := time.Now()
 
-			bulkInsert := ta.elastic.Bulk().Index(util.GetElasticIndex(ta.VDCName)).Type("traffic")
+			bulkInsert := ta.elastic.Bulk().Index(util.GetElasticIndex(ta.VDCName)).Type("data")
 
 			for ip, data := range ta.readStats(out) {
 				msg := trafficMessage{
@@ -96,7 +98,15 @@ func (ta *ThroughputAgent) Run() {
 				req := elastic.NewBulkIndexRequest().Doc(msg)
 				bulkInsert.Add(req)
 			}
-			bulkInsert.Do(ta.ctx)
+
+			_, err := bulkInsert.Do(ta.ctx)
+
+			if err != nil {
+				log.Error("cound not push to es", err)
+			} else {
+				log.Debug("pushed new traffic data to es")
+			}
+
 			go ta.pktstat()
 		}
 	}

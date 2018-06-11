@@ -18,6 +18,8 @@ TODO:
 */
 func main() {
 
+	log.SetLevel(log.DebugLevel)
+
 	viper.SetConfigName("traffic")
 	viper.AddConfigPath("/.config/")
 	viper.AddConfigPath(".config/")
