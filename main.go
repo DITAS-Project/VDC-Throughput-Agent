@@ -18,8 +18,9 @@ TODO:
 */
 func main() {
 
-	viper.SetConfigName("throughputagent")
+	viper.SetConfigName("traffic")
 	viper.AddConfigPath("/.config/")
+	viper.AddConfigPath(".config/")
 	viper.AddConfigPath(".")
 
 	viper.SetDefault("ElasticSearchURL", "http://localhost:9200")
@@ -30,12 +31,13 @@ func main() {
 		log.Errorf("Fatal error config file: %s \n", err)
 	}
 
+	viper.RegisterAlias("elastic", "ElasticSearchURL")
+
 	flag.String("elastic", "http://localhost:9200", "used to define the elasticURL")
 	flag.Int("wt", 1, "wait time for each monitoring window")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
-
 	agent, err := throughputagent.NewThroughputAgent()
 
 	if err != nil {
