@@ -17,6 +17,7 @@ package throughputagent
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -36,7 +37,7 @@ type ThroughputAgent struct {
 	outChan          chan string
 	VDCName          string
 	filter           []*regexp.Regexp
-	componentNames   map[string]string
+	componentNames   []*ComponentMatcher
 	elastic          *elastic.Client
 	ctx              context.Context
 }
@@ -55,6 +56,7 @@ func NewThroughputAgent() (*ThroughputAgent, error) {
 	ignoreTemplates := viper.GetStringSlice("ignore")
 	filter := make([]*regexp.Regexp, 0)
 	for _, tpl := range ignoreTemplates {
+		log.Debugf("parsing template %s", tpl)
 		r, err := regexp.Compile(tpl)
 		if err != nil {
 			log.Warnf("Ignoring filter template %s because %+v", tpl, err)
@@ -62,11 +64,22 @@ func NewThroughputAgent() (*ThroughputAgent, error) {
 		filter = append(filter, r)
 	}
 
+	cmp := make([]*ComponentMatcher, 0)
+	for k, v := range viper.GetStringMapString("components") {
+		m, err := newMatcher(k, v)
+		if err != nil {
+			log.Warnf("Ignoring filter template %s because %+v", k, err)
+		} else {
+			cmp = append(cmp, m)
+		}
+
+	}
+
 	ta := &ThroughputAgent{
 		ElasticSearchURL: viper.GetString("ElasticSearchURL"),
 		windowTime:       viper.GetInt("windowTime"),
 		VDCName:          viper.GetString("VDCName"),
-		componentNames:   viper.GetStringMapString("components"),
+		componentNames:   cmp,
 		filter:           filter,
 		outChan:          make(chan string),
 		ctx:              context.Background(),
@@ -101,9 +114,21 @@ func (ta *ThroughputAgent) Run() {
 		case out := <-ta.outChan:
 			ts := time.Now()
 
+			sample := false
+			if viper.GetBool("trace") {
+				sample = true
+			} else if viper.GetBool("verbose") {
+				if rand.Float32() < 0.4 {
+					sample = true
+				}
+			}
+
 			bulkInsert := ta.elastic.Bulk().Index(util.GetElasticIndex(ta.VDCName)).Type("data")
 
 			for ip, data := range ta.readStats(out) {
+				if sample {
+					log.Debugf("got data from %s with %d", ip, (data[0] + data[1]))
+				}
 
 				if ta.filter != nil && len(ta.filter) > 0 {
 					skip := false
@@ -119,12 +144,8 @@ func (ta *ThroughputAgent) Run() {
 					}
 				}
 
-				var comp string
-				if val, ok := ta.componentNames[ip]; ok {
-					comp = val
-				} else {
-					comp = ip
-				}
+				comp := ta.getComponentName(ip)
+
 				msg := trafficMessage{
 					Timestamp: ts,
 					Component: comp,
@@ -205,4 +226,36 @@ func (ta *ThroughputAgent) pktstat() {
 		log.Errorf("failed to run pktstats, are you root? %+v\n", err)
 	}
 	ta.outChan <- fmt.Sprintf("%s", out)
+}
+
+func (ta *ThroughputAgent) getComponentName(ip string) string {
+	for _, m := range ta.componentNames {
+		if m.Match(ip) {
+			return m.Name
+		}
+	}
+	return ip
+}
+
+type ComponentMatcher struct {
+	matcher *regexp.Regexp
+	Name    string
+}
+
+func newMatcher(tpl string, name string) (*ComponentMatcher, error) {
+
+	r, err := regexp.Compile(tpl)
+	if err != nil {
+		log.Warnf("Ignoring filter template %s because %+v", tpl, err)
+		return nil, err
+	}
+
+	return &ComponentMatcher{
+		matcher: r,
+		Name:    name,
+	}, nil
+}
+
+func (m *ComponentMatcher) Match(ip string) bool {
+	return m.matcher.MatchString(ip)
 }

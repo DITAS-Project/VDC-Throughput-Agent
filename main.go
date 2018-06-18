@@ -18,8 +18,6 @@ TODO:
 */
 func main() {
 
-	log.SetLevel(log.DebugLevel)
-
 	viper.SetConfigName("traffic")
 	viper.AddConfigPath("/.config/")
 	viper.AddConfigPath(".config/")
@@ -37,9 +35,21 @@ func main() {
 
 	flag.String("elastic", "http://localhost:9200", "used to define the elasticURL")
 	flag.Int("wt", 1, "wait time for each monitoring window")
+	flag.Bool("verbose", false, "enable verbose logging")
+	flag.Bool("trace", false, "enable very verbose logging")
+
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
+
+	if viper.GetBool("trace") {
+		viper.Set("verbose", true)
+	}
+
+	if viper.GetBool("verbose") {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	agent, err := throughputagent.NewThroughputAgent()
 
 	if err != nil {
