@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -34,6 +35,8 @@ type ThroughputAgent struct {
 	Interface        string
 	outChan          chan string
 	VDCName          string
+	filter           []*regexp.Regexp
+	componentNames   map[string]string
 	elastic          *elastic.Client
 	ctx              context.Context
 }
@@ -48,10 +51,23 @@ type trafficMessage struct {
 
 func NewThroughputAgent() (*ThroughputAgent, error) {
 
+	//compile filter
+	ignoreTemplates := viper.GetStringSlice("ignore")
+	filter := make([]*regexp.Regexp, 0)
+	for _, tpl := range ignoreTemplates {
+		r, err := regexp.Compile(tpl)
+		if err != nil {
+			log.Warnf("Ignoring filter template %s because %+v", tpl, err)
+		}
+		filter = append(filter, r)
+	}
+
 	ta := &ThroughputAgent{
 		ElasticSearchURL: viper.GetString("ElasticSearchURL"),
 		windowTime:       viper.GetInt("windowTime"),
 		VDCName:          viper.GetString("VDCName"),
+		componentNames:   viper.GetStringMapString("components"),
+		filter:           filter,
 		outChan:          make(chan string),
 		ctx:              context.Background(),
 	}
@@ -88,9 +104,30 @@ func (ta *ThroughputAgent) Run() {
 			bulkInsert := ta.elastic.Bulk().Index(util.GetElasticIndex(ta.VDCName)).Type("data")
 
 			for ip, data := range ta.readStats(out) {
+
+				if ta.filter != nil && len(ta.filter) > 0 {
+					skip := false
+					for _, m := range ta.filter {
+						if m.MatchString(ip) {
+							skip = true
+							break
+						}
+					}
+					if skip {
+						log.Debugf("ignoring %s", ip)
+						continue
+					}
+				}
+
+				var comp string
+				if val, ok := ta.componentNames[ip]; ok {
+					comp = val
+				} else {
+					comp = ip
+				}
 				msg := trafficMessage{
 					Timestamp: ts,
-					Component: ip,
+					Component: comp,
 					Send:      data[0],
 					Recived:   data[1],
 					Total:     data[0] + data[1],

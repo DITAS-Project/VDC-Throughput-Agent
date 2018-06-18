@@ -27,7 +27,7 @@ func main() {
 
 	viper.SetDefault("ElasticSearchURL", "http://localhost:9200")
 	viper.SetDefault("windowTime", 1)
-
+	viper.SetDefault("VDCName", "dummyVDC")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Errorf("Fatal error config file: %s \n", err)
