@@ -42,7 +42,7 @@ type ThroughputAgent struct {
 	ctx              context.Context
 }
 
-type trafficMessage struct {
+type TrafficMessage struct {
 	Timestamp time.Time `json:"@timestamp,omitempty"`
 	Component string    `json:"traffic.component,omitempty"`
 	Send      int       `json:"traffic.send,omitempty"`
@@ -123,7 +123,7 @@ func (ta *ThroughputAgent) Run() {
 				}
 			}
 
-			bulkInsert := ta.elastic.Bulk().Index(util.GetElasticIndex(ta.VDCName)).Type("data")
+			bulkInsert := CreateBulkInsert(ta.elastic, ta.VDCName)
 
 			for ip, data := range ta.readStats(out) {
 				if sample {
@@ -146,15 +146,14 @@ func (ta *ThroughputAgent) Run() {
 
 				comp := ta.getComponentName(ip)
 
-				msg := trafficMessage{
+				msg := TrafficMessage{
 					Timestamp: ts,
 					Component: comp,
 					Send:      data[0],
 					Recived:   data[1],
 					Total:     data[0] + data[1],
 				}
-				req := elastic.NewBulkIndexRequest().Doc(msg)
-				bulkInsert.Add(req)
+				InsertIntoElastic(msg, bulkInsert)
 			}
 
 			_, err := bulkInsert.Do(ta.ctx)
@@ -258,4 +257,16 @@ func newMatcher(tpl string, name string) (*ComponentMatcher, error) {
 
 func (m *ComponentMatcher) Match(ip string) bool {
 	return m.matcher.MatchString(ip)
+}
+
+//CreateBulkInsert creates a BulkIndexInsertService for trafficData
+func CreateBulkInsert(client *elastic.Client, vdcName string) *elastic.BulkService {
+	bulkInsert := client.Bulk().Index(util.GetElasticIndex(vdcName)).Type("data")
+	return bulkInsert
+}
+
+//InsertIntoElastic Adds a TrafficMessage into the bulkInsert
+func InsertIntoElastic(msg TrafficMessage, bulkInsert *elastic.BulkService) {
+	req := elastic.NewBulkIndexRequest().Doc(msg)
+	bulkInsert.Add(req)
 }
