@@ -21,6 +21,7 @@ func main() {
 	viper.SetConfigName("traffic")
 	viper.AddConfigPath("/.config/")
 	viper.AddConfigPath(".config/")
+	viper.AddConfigPath("/opt/blueprint/")
 	viper.AddConfigPath(".")
 
 	viper.SetDefault("ElasticSearchURL", "http://localhost:9200")
