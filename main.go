@@ -4,11 +4,30 @@ import (
 	"flag"
 
 	"github.com/DITAS-Project/VDC-Throughput-Agent/throughputagent"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
-	log "github.com/sirupsen/logrus"
+	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
+
+var (
+	Build string
+)
+
+var logger = logrus.New()
+var log *logrus.Entry
+
+func init() {
+	if Build == "" {
+		Build = "Debug"
+	}
+	logger.Formatter = new(prefixed.TextFormatter)
+	logger.SetLevel(logrus.DebugLevel)
+	log = logger.WithFields(logrus.Fields{
+		"prefix": "thr-agn",
+		"build":  Build,
+	})
+}
 
 /*
 TODO:
@@ -48,8 +67,12 @@ func main() {
 	}
 
 	if viper.GetBool("verbose") {
-		log.SetLevel(log.DebugLevel)
+		logger.SetLevel(logrus.DebugLevel)
+		log.Infof("verbose mode")
 	}
+
+	throughputagent.SetLogger(logger)
+	throughputagent.SetLog(log)
 
 	agent, err := throughputagent.NewThroughputAgent()
 

@@ -26,9 +26,20 @@ import (
 
 	"github.com/DITAS-Project/TUBUtil/util"
 	"github.com/olivere/elastic"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
+
+var logger = logrus.New()
+var log = logrus.NewEntry(logger)
+
+func SetLogger(nLogger *logrus.Logger) {
+	logger = nLogger
+}
+
+func SetLog(entty *logrus.Entry) {
+	log = entty
+}
 
 type ThroughputAgent struct {
 	ElasticSearchURL string
