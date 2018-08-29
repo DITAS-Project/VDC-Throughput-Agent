@@ -38,18 +38,21 @@ TODO:
 func main() {
 
 	viper.SetConfigName("traffic")
+	viper.AddConfigPath("/opt/blueprint/")
 	viper.AddConfigPath("/.config/")
 	viper.AddConfigPath(".config/")
-	viper.AddConfigPath("/opt/blueprint/")
 	viper.AddConfigPath(".")
 
 	viper.SetDefault("ElasticSearchURL", "http://localhost:9200")
 	viper.SetDefault("windowTime", 1)
 	viper.SetDefault("VDCName", "dummyVDC")
+
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Errorf("Fatal error config file: %s \n", err)
 	}
+
+	log.Info("config file used @ %s", viper.ConfigFileUsed())
 
 	viper.RegisterAlias("elastic", "ElasticSearchURL")
 
@@ -68,7 +71,6 @@ func main() {
 
 	if viper.GetBool("verbose") {
 		logger.SetLevel(logrus.DebugLevel)
-		log.Infof("verbose mode")
 	}
 
 	throughputagent.SetLogger(logger)
