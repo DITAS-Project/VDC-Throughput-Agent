@@ -102,6 +102,7 @@ func NewThroughputAgent() (*ThroughputAgent, error) {
 
 	client, err := elastic.NewClient(
 		elastic.SetURL(ta.ElasticSearchURL),
+		elastic.SetSniff(false),
 	)
 
 	if err != nil {
