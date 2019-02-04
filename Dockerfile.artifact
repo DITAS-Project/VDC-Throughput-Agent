@@ -6,6 +6,7 @@ RUN apk update && apk add git && \
     dep ensure && \
     CGO_ENABLED=0 go build -a --installsuffix cgo --ldflags="-w -s -X main.Build=$(git rev-parse --short HEAD)" -o vdc-traffic
 
+
 FROM alpine:3.4
 COPY --from=vdcThroughput /go/src/github.com/DITAS-Project/VDC-Throughput-Agent/vdc-traffic /opt/monitoring/vdc-traffic
 
@@ -23,6 +24,6 @@ RUN  apk add --update $RUNTIME_DEPS && \
     && apk del build_deps \
     && rm -rf /var/cache/apk/*
 
+ADD entrypoint.sh /entrypoint.sh
 
-
-CMD [ "./vdc-traffic" ]
+ENTRYPOINT [ "/entrypoint.sh" ]

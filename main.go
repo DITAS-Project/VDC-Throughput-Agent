@@ -38,7 +38,7 @@ TODO:
 func main() {
 
 	viper.SetConfigName("traffic")
-	viper.AddConfigPath("/opt/blueprint/")
+	viper.AddConfigPath("/etc/ditas/")
 	viper.AddConfigPath("/.config/")
 	viper.AddConfigPath(".config/")
 	viper.AddConfigPath(".")
