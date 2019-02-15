@@ -13,12 +13,6 @@ To use this component, you need at least go 1.10 and dep 0.5 and [pktstat](https
 To install the go lang tools go to: [Go Getting Started](https://golang.org/doc/install)
 
 
-To install dep, you can use this command or go to [Dep - Github](https://github.com/golang/dep):
-```
-curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-```
-
-
 
 ### Installing
 
@@ -27,10 +21,6 @@ For installation you have two options, building and running it on your local mac
 For local testing and building for that you can follow the following steps:
 
 install dependencies (only needs to be done once):
-
-```
-dep ensure
-```
 
 compile
 ```
@@ -90,7 +80,6 @@ Alternatively, use can use flags with the same name to configure the agent.
 
 ## Built With
 
-* [dep](https://github.com/golang/dep)
 * [viper](https://github.com/spf13/viper)
 * [pktstat](https://github.com/dleonard0/pktstat)
 * [ElasticSearch](https://www.elastic.co/)

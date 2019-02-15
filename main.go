@@ -52,7 +52,7 @@ func main() {
 		log.Errorf("Fatal error config file: %s \n", err)
 	}
 
-	log.Info("config file used @ %s", viper.ConfigFileUsed())
+	log.Infof("config file used @ %s", viper.ConfigFileUsed())
 
 	viper.RegisterAlias("elastic", "ElasticSearchURL")
 

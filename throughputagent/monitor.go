@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DITAS-Project/TUBUtil/util"
+	"github.com/DITAS-Project/TUBUtil"
 	"github.com/olivere/elastic"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
