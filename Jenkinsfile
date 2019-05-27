@@ -27,6 +27,8 @@ pipeline {
 
                echo "Pushing the image ditas/vdc-base-image:latest..."
                sh "docker push ditas/vdc-base-image:latest"
+	       sh "docker tag ditas/vdc-base-image:latest ditas/vdc-base-image:v02"
+	       sh "docker push ditas/vdc-base-image:v02"
                echo "Done "
            }
         }
