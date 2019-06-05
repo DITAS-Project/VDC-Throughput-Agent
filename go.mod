@@ -1,18 +1,16 @@
 module github.com/DITAS-Project/VDC-Throughput-Agent
 
 require (
-	github.com/BurntSushi/toml v0.3.1 // indirect
-	github.com/DITAS-Project/TUBUtil v1.0.1
-	github.com/fortytw2/leaktest v1.3.0 // indirect
-	github.com/google/go-cmp v0.2.0 // indirect
-	github.com/mattn/go-colorable v0.1.0 // indirect
-	github.com/mattn/go-isatty v0.0.4 // indirect
-	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
-	github.com/olivere/elastic v6.2.16+incompatible
-	github.com/onsi/ginkgo v1.7.0 // indirect
-	github.com/onsi/gomega v1.4.3 // indirect
+	github.com/DITAS-Project/TUBUtil v1.0.2
+	github.com/DITAS-Project/VDC-Request-Monitor v1.0.3 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/magiconair/properties v1.8.1 // indirect
+	github.com/mattn/go-colorable v0.1.2 // indirect
+	github.com/olivere/elastic v6.2.18+incompatible
 	github.com/sirupsen/logrus v1.3.0
 	github.com/spf13/pflag v1.0.3
-	github.com/spf13/viper v1.3.1
+	github.com/spf13/viper v1.3.2
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
+	go.uber.org/zap v1.10.0 // indirect
+	golang.org/x/text v0.3.2 // indirect
 )

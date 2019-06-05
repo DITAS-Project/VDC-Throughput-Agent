@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DITAS-Project/TUBUtil"
+	util "github.com/DITAS-Project/TUBUtil"
 	"github.com/olivere/elastic"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -98,12 +98,25 @@ func NewThroughputAgent() (*ThroughputAgent, error) {
 
 	log.Infof("traffic monitor running with es@%s name:%s waittime:%d", ta.ElasticSearchURL, ta.VDCName, ta.windowTime)
 
-	err := util.WaitForAvailible(ta.ElasticSearchURL, nil)
+	var client *elastic.Client
+	var err error
 
-	client, err := elastic.NewClient(
-		elastic.SetURL(ta.ElasticSearchURL),
-		elastic.SetSniff(false),
-	)
+	if viper.GetBool("ElasticBasicAuth") {
+		err = util.WaitForAvailibleWithAuth(ta.ElasticSearchURL, []string{viper.GetString("ElasticUser"), viper.GetString("ElasticPassword")}, nil)
+
+		client, err = elastic.NewClient(
+			elastic.SetURL(ta.ElasticSearchURL),
+			elastic.SetSniff(false),
+			elastic.SetBasicAuth(viper.GetString("ElasticUser"), viper.GetString("ElasticPassword")),
+		)
+	} else {
+		err = util.WaitForAvailible(ta.ElasticSearchURL, nil)
+
+		client, err = elastic.NewClient(
+			elastic.SetURL(ta.ElasticSearchURL),
+			elastic.SetSniff(false),
+		)
+	}
 
 	if err != nil {
 		log.Error("failed to connect to elastic serach")

@@ -44,6 +44,11 @@ func main() {
 	viper.AddConfigPath(".")
 
 	viper.SetDefault("ElasticSearchURL", "http://localhost:9200")
+
+	viper.SetDefault("ElasticBasicAuth", false)
+	viper.SetDefault("ElasticUser", "")
+	viper.SetDefault("ElasticPassword", "")
+
 	viper.SetDefault("windowTime", 1)
 	viper.SetDefault("VDCName", "dummyVDC")
 
