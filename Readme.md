@@ -58,6 +58,10 @@ For that make sure you have [pktstat](https://github.com/dleonard0/pktstat) inst
 ## Configuration
 To configure the agent, you can specify the following values in a JSON file:
  * ElasticSearchURL => The URL that all aggregated data is sent to
+ * ElasticBasicAuth => boolean to indicate if authentication for the elastic is required
+ * ElasticUser => username for the elasticsearch
+ * ElasticPassword => password for the elasticsearch
+ * trace => boolean if every message should be logged to the console
  * VDCName => the Name used to store the information under
  * windowTime => the time window that is used to aggregate connections in seconds
  * ignore => List of `ip:port`-data that should not be aggregated or reported
