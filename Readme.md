@@ -72,12 +72,16 @@ An example file could look like this:
 ```
 {
     "ElasticSearchURL":"http://127.0.0.1:9200",
+    "ElasticBasicAuth": true,
+    "ElasticUser": "user",
+    "ElasticPassword": "123456",
+    "trace": false,
     "VDCName":"tubvdc",
     "windowTime":10,
     "ignore":["(.*):9200""],
     "components":{".*:3306":"mysql",".*:9042":"cassandra"},
     "verbose":true
-}
+}   
 ```
 
 Alternatively, use can use flags with the same name to configure the agent.
